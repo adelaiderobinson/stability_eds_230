@@ -1,0 +1,27 @@
+---
+title: "stability_assignment"
+author: "Carlo Broderick Adelaide Robinson"
+date: "2023-05-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Assignment
+
+Consider how you might add hunting  of prey to the predator prey model that we've been using in class
+
+Build this model (e.g add harvesting to the lotvmodK.R), you should make sure that you don't hunt more prey than exist. To ensure that you might also add a minumum prey population input that must be met before hunting is allowed.
+
+Explore how different hunting levels and different minimum prey populations (before hunting is allowed) are likely to effect the stability of the populations of both predator and prey. Use this exploration to recommend a hunting target that will be sustainable (e.g leave you with a stable prey and predator population)
+
+You can assume the following
+rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000,
+
+A key challenge is how you might want to define stability? Its up to you but you will need to write a sentence to explain why you chose the measure that you did.  It could be something as simple as maintaining a population above some value 50 years into the future.
+
+Its also up to you how you "explore" hunting  - you can simply try different values or do it more formally by running your model across a range of values
+
+Submit the Rmarkdown that documents your exploration (e.g how you tested different hunting level and how you defined a stability metric) and provides you estimated sustainable hunting level. 
