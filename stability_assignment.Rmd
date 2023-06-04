@@ -7,21 +7,106 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(sensitivity)
+library(tidyverse)
+library(deSolve)
+library(ggpubr)
 ```
 
 # Assignment
 
-Consider how you might add hunting  of prey to the predator prey model that we've been using in class
+Consider how you might add hunting of prey to the predator prey model that we've been using in class
 
 Build this model (e.g add harvesting to the lotvmodK.R), you should make sure that you don't hunt more prey than exist. To ensure that you might also add a minumum prey population input that must be met before hunting is allowed.
 
+```{r}
+# create the hunting model function
+lotvmodK_hunt = function(t, pop, pars) {
+    with(as.list(c(pars, pop)), {
+      
+        # hunting threshold
+        hunting = ifelse(prey > min_prey, h*prey, 0)
+        
+        # pray delta
+        dprey = rprey*(1-prey/K)*prey - alpha*prey*pred - hunting
+        
+        # pred delta
+        dpred = eff*alpha*prey*pred - pmort*pred
+        
+        # return list of deltas
+        return(list(c(dprey, dpred)))
+    })
+}
+```
+
 Explore how different hunting levels and different minimum prey populations (before hunting is allowed) are likely to effect the stability of the populations of both predator and prey. Use this exploration to recommend a hunting target that will be sustainable (e.g leave you with a stable prey and predator population)
 
-You can assume the following
-rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000,
+You can assume the following rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000,
 
-A key challenge is how you might want to define stability? Its up to you but you will need to write a sentence to explain why you chose the measure that you did.  It could be something as simple as maintaining a population above some value 50 years into the future.
+```{r}
 
-Its also up to you how you "explore" hunting  - you can simply try different values or do it more formally by running your model across a range of values
+# set parameters and time periods
+pars = data.frame(rprey=0.95, alpha=0.01, eff=0.6, pmort=0.4, K=2000)
+time_periods = seq(from=1, to=300, by  = .1)
 
-Submit the Rmarkdown that documents your exploration (e.g how you tested different hunting level and how you defined a stability metric) and provides you estimated sustainable hunting level. 
+# range of hunting rates and minimum prey populations to test
+hunting_rates = c(0.01, 0.1, 0.7)
+min_prey_populations = c(0, 200, 1000)
+
+# initial populations
+currpop = c(prey=1000, pred=100)
+
+# initialize list for results
+results = list()
+
+# loop through an ODE solver and put all the results into the list
+for (h in hunting_rates) {
+    for (min_prey in min_prey_populations) {
+        pars$h = h
+        pars$min_prey = min_prey
+        res = ode(func=lotvmodK_hunt, y=currpop, times=time_periods, parms=pars)
+        results[[paste(h, min_prey, sep="_")]] = as.data.frame(res)
+    }
+}
+
+```
+
+```{r}
+# seporate the list ids for plotting
+systems_df <- bind_rows(results, .id = "id") %>%
+  mutate(hunting_rate = as.factor(str_split(id, "_", simplify = TRUE)[,1]),
+         min_pray = as.numeric(str_split(id, "_", simplify = TRUE)[,2]))
+  
+# did not end p 
+ggplot(data = systems_df, aes(x = time, y = prey, color = hunting_rate)) +
+    geom_point() +
+    facet_wrap(~id, scales = "free_y") +
+    theme_minimal() +
+    labs(title = "Stable systems population over time",
+         x = "Time",
+         y = "Prey Population",
+         color = "Hunting Rate")
+```
+
+A key challenge is how you might want to define stability? Its up to you but you will need to write a sentence to explain why you chose the measure that you did. It could be something as simple as maintaining a population above some value 50 years into the future.
+
+**Both the prey and predator populations stay above 400 individuals for at least 50 years.**
+
+```{r}
+# initialize stale systems list
+stable_systems = list()
+
+# extract results that have the desired stability criteria
+for (name in names(results)) {
+    df = results[[name]]
+    final_populations = df[(nrow(df)-48):nrow(df),]
+    if (all(final_populations$prey >= 50) && all(final_populations$pred >= 50)) {
+        stable_systems[[name]] = final_populations
+    }
+}
+```
+
+Its also up to you how you "explore" hunting - you can simply try different values or do it more formally by running your model across a range of values
+
+Submit the Rmarkdown that documents your exploration (e.g how you tested different hunting level and how you defined a stability metric) and provides you estimated sustainable hunting level.
