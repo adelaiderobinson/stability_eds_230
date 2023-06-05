@@ -1,6 +1,6 @@
 ---
 title: "stability_assignment"
-author: "Carlo Broderick Adelaide Robinson"
+author: "Carlo Broderick; Erika Egg; Adelaide Robinson"
 date: "2023-05-30"
 output: html_document
 ---
@@ -73,7 +73,7 @@ for (h in hunting_rates) {
 ```
 
 ```{r}
-# seporate the list ids for plotting
+# separate the list ids for plotting
 systems_df <- bind_rows(results, .id = "id") %>%
   mutate(hunting_rate = as.factor(str_split(id, "_", simplify = TRUE)[,1]),
          min_pray = as.numeric(str_split(id, "_", simplify = TRUE)[,2]))
