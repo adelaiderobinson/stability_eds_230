@@ -1,13 +1,14 @@
 ---
-title: "stability_assignment"
+title: "Stability Assignment"
 author: "Carlo Broderick; Erika Egg; Adelaide Robinson"
-date: "2023-05-30"
+date: "2023-06-08"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# Read in packages
 library(sensitivity)
 library(tidyverse)
 library(deSolve)
@@ -43,10 +44,9 @@ lotvmodK_hunt = function(t, pop, pars) {
 
 Explore how different hunting levels and different minimum prey populations (before hunting is allowed) are likely to effect the stability of the populations of both predator and prey. Use this exploration to recommend a hunting target that will be sustainable (e.g leave you with a stable prey and predator population)
 
-You can assume the following rprey=0.95, alpha=0.01, eff=0.6,pmort=0.4, K=2000,
+You can assume the following rprey=0.95, alpha=0.01, eff=0.6, pmort=0.4, K=2000,
 
-```{r}
-
+```{r, warning = FALSE}
 # set parameters and time periods
 pars = data.frame(rprey=0.95, alpha=0.01, eff=0.6, pmort=0.4, K=2000)
 time_periods = seq(from=1, to=500, by  = .1)
@@ -70,7 +70,6 @@ for (h in hunting_rates) {
         results[[paste(h, min_prey, sep="_")]] = as.data.frame(res)
     }
 }
-
 ```
 
 ```{r, fig.width = 10}
@@ -89,8 +88,8 @@ ggplot(data = systems_df, aes(x = time, y = prey, color = hunting_rate)) +
          y = "Prey Population",
          color = "Hunting Rate")
 
-#relationship between predator and prey graphs under the different hunting scenarios.
-ggplot(systems_df, aes(pred, prey))+geom_point()+labs(y="Prey",x="Predators") +facet_grid(~id)
+# relationship between predator and prey graphs under the different hunting scenarios.
+ggplot(systems_df, aes(pred, prey))+geom_point()+labs(y="Prey",x="Predators") + facet_grid(~id)
 
 ggplot(as.data.frame(systems_df), aes(pred, prey, col=time))+geom_point()+labs(y="Prey",x="Predators") + facet_grid(~id)
 
@@ -115,16 +114,13 @@ for (name in names(results)) {
 ```
 
 ```{r}
+all_stable <- bind_rows(stable_systems, .id = "hunting_min")
 
-all_stable<- bind_rows(stable_systems, .id = "hunting_min")
-
-#show all scenarios which eventually resulted in a stable population 
+# show all scenarios which eventually resulted in a stable population 
 unique(all_stable$hunting_min)
-
-
 ```
 
-Its also up to you how you "explore" hunting - you can simply try different values or do it more formally by running your model across a range of values
+It's also up to you how you "explore" hunting - you can simply try different values or do it more formally by running your model across a range of values
 
 **Based on our results, we would recommend an hunting level below 70% of the population, as stability was not achieved for all minimum population levels with this hunting rate**
 
