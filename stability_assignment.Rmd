@@ -122,6 +122,6 @@ unique(all_stable$hunting_min)
 
 It's also up to you how you "explore" hunting - you can simply try different values or do it more formally by running your model across a range of values
 
-**Based on our results, we would recommend an hunting level below 70% of the population, as stability was not achieved for all minimum population levels with this hunting rate**
+**Based on our results, we would recommend an hunting level below 70% of the population, as stability was not achieved for all minimum population levels with this hunting rate.**
 
 Submit the Rmarkdown that documents your exploration (e.g how you tested different hunting level and how you defined a stability metric) and provides you estimated sustainable hunting level.
